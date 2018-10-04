@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			#box{width: 500px;height: 600px;margin: 50px auto;display: flex;}
+			#begin{width: 100px;height: 40px;}
+			#map{position: relative;width: 400px;height: 600px;background: #ccc; }
+		</style>
+	</head>
+	<body>
+		<div id="box">
+			<button class="btn" id="begin">开始游戏</button>
+			<div id="map" class="map"></div>
+		</div>
+		<script type="text/javascript">
+			var map=document.getElementById("map");
+			function Snake(){
+				this.Width=10;
+				this.Height=10;
+				this.direction="right";
+				this.body=[{x:2,y:0},{x:1,y:0},{x:0,y:0}];
+				
+				this.display=function(){
+					for(var i=0;i<this.body.length;i++){
+						if(this.body[i].x !=null){
+							var s=document.createElement("div");
+							this.body[i].flag=s;
+							s.style.width=this.Width+"px";
+							s.style.height=this.Height+"px";
+							s.style.borderRadius="50%";
+							s.style.background="red";
+							s.style.position="absolute";
+							s.style.left=this.body[i].x*this.Width+"px";
+							s.style.top=this.body[i].y*this.Height+"px";
+							map.appendChild(s);
+						}
+					}
+				}
+				
+				this.run=function(){
+					for(var i=this.body.length-1;i>0;i-- ){
+						this.body[i].x=this.body[i-1].x;
+						this.body[i].y=this.body[i-1].y;
+					}
+					
+					switch(this.direction){
+						case "left":
+							this.body[0].x -=1;
+							break;
+						case "right":
+							this.body[0].x +=1;
+							break;
+						case "up":
+							this.body[0].y -=1;
+							break;
+						case "down":
+							this.body[0].y +=1;
+							break;
+					}
+					
+					if(this.body[0].x<0 || this.body[0].x>39 || this.body[0].y<0 || this.body[0].y>59 ){
+						clearInterval(timer);
+						alert("眼瘸，撞死了！");
+						
+						for(var i=0;i<this.body.length;i++){
+							if(this.body[i].flag !=null){
+								map.removeChild(this.body[i].flag);
+							}
+						}
+						
+						this.body=[{x:2,y:0},{x:1,y:0},{x:0,y:0}];
+						this.direction="right";
+						this.display();
+						return false;
+					}
+					
+					if(this.body[0].x==food.x && this.body[0].y==food.y){
+						this.body.push({x:null,y:null,flag:null});
+						map.removeChild(food.flag);
+						food.display();
+					}
+					
+					for(var i=4;i<this.body.length;i++){
+						if(this.body[0].x==this.body[i].x && this.body[0].y==this.body[i].y){
+							clearInterval(timer);
+							alert("自己一点也不好吃！");
+							
+							for(var i=0;i<this.body.length;i++){
+								if(this.body[i].flag !=null){
+									map.removeChild(this.body[i].flag);
+								}
+							}
+							
+							this.body=[{x:2,y:0},{x:1,y:0},{x:0,y:0}];
+							this.direction="right";
+							this.display();
+							return false;
+						}
+					}
+					
+					for(var i=0;i<this.body.length;i++){
+						if(this.body[i].flag !=null){
+							map.removeChild(this.body[i].flag);
+						}
+					}
+					
+					this.display();
+				}	
+			}
+			
+			function Food(){
+				this.width=10;
+				this.height=10;
+				
+				this.display=function(){
+					var f=document.createElement("div");
+					this.flag=f;
+					f.style.width = this.width + 'px';
+		            f.style.height = this.height + 'px';
+		            f.style.background = 'red';
+		            f.style.borderRadius = '50%';
+		            f.style.position = 'absolute';
+		            this.x = Math.floor(Math.random()*40);
+		            this.y = Math.floor(Math.random()*60);
+		            f.style.left = this.x * this.width + 'px';
+		            f.style.top = this.y * this.height + 'px';
+	                map.appendChild(f);
+				}
+			}
+			
+			var snake= new Snake();
+			var food=new Food();
+			snake.display();
+			food.display();
+			
+			document.body.onkeydown=function(e){
+				var evt=e || event;
+				
+				switch(evt.keyCode){
+					case 38:
+						if(snake.direction !="down"){
+							snake.direction="up";
+						}
+						break;
+					case 40:
+						if(snake.direction !="up"){
+							snake.direction="down";
+						}
+						break;
+					case 37:
+						if(snake.direction !="right"){
+							snake.direction="left";
+						}
+						break;
+					case 39:
+						if(snake.direction !="left"){
+							snake.direction="right";
+						}
+						break;
+				}
+			};
+			
+			var begin=document.getElementById("begin");
+			var timer;
+			begin.onclick=function(){
+				clearInterval(timer);
+				timer=setInterval("snake.run()",150);
+			}
+			
+		</script>
+	</body>
+</html>
